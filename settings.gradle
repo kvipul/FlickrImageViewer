@@ -1,0 +1,3 @@
+include ':app', 'BaseAndroidLibrary'
+project(':BaseAndroidLibrary').projectDir = file('../BaseAndroid/BaseAndroidLibrary')
+rootProject.name = "FlickrImageViewer"
