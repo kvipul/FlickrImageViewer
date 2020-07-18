@@ -5,6 +5,10 @@ apply plugin: 'kotlin-android-extensions'
 android {
     compileSdkVersion 29
 
+    buildFeatures {
+        dataBinding = true
+    }
+
     defaultConfig {
         applicationId "com.sablania.flickrimageviewer"
         minSdkVersion 21
@@ -30,5 +34,5 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
 
-//    implementation project(':BaseAndroidLibrary')
+    implementation project(':BaseAndroidLibrary')
 }

@@ -1,11 +1,20 @@
 package com.sablania.flickrimageviewer
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import com.sablania.baseandroidlibrary.BaseActivity
+import com.sablania.flickrimageviewer.databinding.ActivityMainBinding
+import com.sablania.flickrimageviewer.fragments.FlickrImagesFragment
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : BaseActivity() {
+    private lateinit var binding: ActivityMainBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        supportFragmentManager.beginTransaction()
+                .add(binding.flContentFrame.id, FlickrImagesFragment.newInstance(), FlickrImagesFragment.TAG)
+                .commit()
     }
 }
