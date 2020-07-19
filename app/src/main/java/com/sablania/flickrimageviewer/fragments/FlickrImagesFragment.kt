@@ -17,6 +17,7 @@ class FlickrImagesFragment : BaseFragment() {
 
     lateinit var binding: FragmentFlickrImagesBinding
     lateinit var viewModel: FlickrImagesViewModel
+    lateinit var adapter: FlickrImagesAdapter
 
     companion object {
         val TAG = this::class.java.simpleName
@@ -42,7 +43,8 @@ class FlickrImagesFragment : BaseFragment() {
 
     private fun initView() {
         binding.apply {
-//            rvImages.adapter = FlickrImagesAdapter()
+            adapter = FlickrImagesAdapter()
+            rvImages.adapter = adapter
             rvImages.layoutManager = GridLayoutManager(context, 2)
         }
     }
@@ -52,6 +54,7 @@ class FlickrImagesFragment : BaseFragment() {
         viewModel.getFlickrImages("people", 20, 1)
         viewModel.getFlickrImagesLiveData().observe(viewLifecycleOwner, Observer {
             Log.e("vipul", Gson().toJson(it))
+            adapter.setData(it.photos.photo)
         })
     }
 

@@ -22,7 +22,7 @@ data class FlickrImages(
     @SerializedName("pages") val pages: String,
     @SerializedName("perpage") val perPage: String,
     @SerializedName("total") val total: String,
-    @SerializedName("photo") val photo: List<FlickrImage>
+    @SerializedName("photo") val photo: ArrayList<FlickrImage>
 )
 
 data class FlickrImage(
