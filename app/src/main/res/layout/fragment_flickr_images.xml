@@ -51,7 +51,9 @@
                 tools:itemCount="5"
                 tools:listitem="@layout/item_image"
                 app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
-                android:visibility="gone"/>
+                android:visibility="gone"
+                tools:visibility="visible"
+                />
 
             <include
                 android:id="@+id/layout_api_error_and_retry"

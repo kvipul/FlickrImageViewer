@@ -10,15 +10,17 @@ import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
 import com.sablania.baseandroidlibrary.BaseFragment
 import com.sablania.baseandroidlibrary.EndlessRecyclerViewScrollListener
 import com.sablania.baseandroidlibrary.hideKeyboard
+import com.sablania.baseandroidlibrary.openImageInGallery
 import com.sablania.flickrimageviewer.R
 import com.sablania.flickrimageviewer.adapters.FlickrImagesAdapter
 import com.sablania.flickrimageviewer.databinding.FragmentFlickrImagesBinding
+import com.sablania.flickrimageviewer.models.FlickrImage
 import com.sablania.flickrimageviewer.viewModels.FlickrImagesViewModel
 
 class FlickrImagesFragment : BaseFragment() {
@@ -32,7 +34,7 @@ class FlickrImagesFragment : BaseFragment() {
     companion object {
 
         val TAG = this::class.java.simpleName
-        private const val VISIBLE_THRESHOLD = 4
+        private const val VISIBLE_THRESHOLD = 5
 
         fun newInstance(): FlickrImagesFragment = FlickrImagesFragment()
     }
@@ -55,12 +57,12 @@ class FlickrImagesFragment : BaseFragment() {
 
     private fun initView() {
         binding.apply {
-            adapter = FlickrImagesAdapter { clickType ->
-                onListItemClicked(clickType)
+            adapter = FlickrImagesAdapter { clickType, item ->
+                onListItemClicked(clickType, item)
             }
             rvImages.adapter = adapter
-            val linearLayoutManager = LinearLayoutManager(context)
-            rvImages.layoutManager = linearLayoutManager
+            val layoutManager = GridLayoutManager(context!!, 3)
+            rvImages.layoutManager = layoutManager
             rvImages.addItemDecoration(
                 DividerItemDecoration(
                     context!!,
@@ -69,7 +71,7 @@ class FlickrImagesFragment : BaseFragment() {
             )
 
             endlessScrollListener =
-                object : EndlessRecyclerViewScrollListener(linearLayoutManager, VISIBLE_THRESHOLD) {
+                object : EndlessRecyclerViewScrollListener(layoutManager, VISIBLE_THRESHOLD) {
                     override fun onLoadMore(page: Int, totalItemsCount: Int, view: RecyclerView?) {
                         currentPage = page
                         if (currentPage != 1) loadMoreData() //for the first page, we'll call manually
@@ -153,13 +155,12 @@ class FlickrImagesFragment : BaseFragment() {
         }
     }
 
-    private fun onListItemClicked(clickType: String) {
+    private fun onListItemClicked(clickType: String, item: Any?) {
         when (clickType) {
             FlickrImagesAdapter.IMAGE_ITEM_CLICKED -> {
+                context?.openImageInGallery((item as FlickrImage).getImageLarge())
             }
-            FlickrImagesAdapter.LOAD_MORE_CLICKED -> {
-                loadMoreData()
-            }
+            FlickrImagesAdapter.LOAD_MORE_CLICKED -> loadMoreData()
         }
     }
 

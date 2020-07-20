@@ -4,12 +4,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.sablania.baseandroidlibrary.BaseViewHolder
+import com.sablania.flickrimageviewer.R
 import com.sablania.flickrimageviewer.databinding.ItemImageBinding
 import com.sablania.flickrimageviewer.databinding.ItemRecyclerViewBottomProgressBinding
 import com.sablania.flickrimageviewer.models.FlickrImage
 
-class FlickrImagesAdapter(private val onItemClick: (String) -> Unit) :
+class FlickrImagesAdapter(private val onItemClick: (String, Any?) -> Unit) :
     RecyclerView.Adapter<BaseViewHolder>() {
 
     companion object {
@@ -81,21 +84,22 @@ class FlickrImagesAdapter(private val onItemClick: (String) -> Unit) :
 
     inner class FlickrImagesViewHolder(private val binding: ItemImageBinding) :
         BaseViewHolder(binding.root) {
+
         override fun onBind(position: Int, item: Any?) {
             val context = binding.root.context
             binding.apply {
                 (item as FlickrImage).let {
-//                    Glide.with(context).load(getImageUrl(it)).into(image)
-                    tvTitle.text = item.title
+                    //by default Glide caches images with DiskCacheStrategy.AUTOMATIC strategy, we can change it if needed
+                    Glide.with(context).setDefaultRequestOptions(RequestOptions().apply {
+                        placeholder(R.drawable.ic_baseline_image_24)
+                        error(R.drawable.ic_baseline_error_outline_24)
+                    }).load(item.getImageSquareThumbnail()).into(image)
+
                     itemView.setOnClickListener {
-                        onItemClick.invoke(IMAGE_ITEM_CLICKED)
+                        onItemClick.invoke(IMAGE_ITEM_CLICKED, item)
                     }
                 }
             }
-        }
-
-        private fun getImageUrl(item: FlickrImage): String {
-            return "https://farm${item.farm}.staticflickr.com/${item.server}/${item.id}_${item.secret}_m.jpg"
         }
     }
 
@@ -123,7 +127,7 @@ class FlickrImagesAdapter(private val onItemClick: (String) -> Unit) :
                 }
 
                 tvLoadMore.setOnClickListener {
-                    onItemClick.invoke(LOAD_MORE_CLICKED)
+                    onItemClick.invoke(LOAD_MORE_CLICKED, null)
                 }
             }
         }

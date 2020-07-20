@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 
 class FlickrImagesViewModel(application: Application) : BaseViewModel(application) {
     private val flickrImagesRepository = FlickrImagesRepository(application)
-    private val PER_PAGE = 7
+    private val PER_PAGE = 20
     private var searchText: String = "Random"
 
     fun getFlickrImages(searchText: String, page: Int) = viewModelScope.launch(Dispatchers.IO) {

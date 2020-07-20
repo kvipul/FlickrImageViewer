@@ -35,4 +35,12 @@ data class FlickrImage(
     @SerializedName("ispublic") val isPublic: Int,
     @SerializedName("isfriend") val isFriend: Int,
     @SerializedName("isfamily") val isFamily: Int
-)
+) {
+    fun getImageSquareThumbnail(): String {
+        return "https://farm${farm}.staticflickr.com/${server}/${id}_${secret}_s.jpg"
+    }
+
+    fun getImageLarge(): String {
+        return "https://farm${farm}.staticflickr.com/${server}/${id}_${secret}_b.jpg"
+    }
+}
