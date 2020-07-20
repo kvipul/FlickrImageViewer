@@ -5,8 +5,8 @@ apply plugin: 'kotlin-android-extensions'
 android {
     compileSdkVersion 29
 
-    buildFeatures {
-        dataBinding = true
+    dataBinding {
+        enabled true
     }
 
     defaultConfig {
@@ -35,4 +35,10 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
 
     implementation project(':BaseAndroidLibrary')
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
 }

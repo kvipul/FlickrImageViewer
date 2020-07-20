@@ -11,14 +11,31 @@ import kotlinx.coroutines.launch
 
 class FlickrImagesViewModel(application: Application) : BaseViewModel(application) {
     private val flickrImagesRepository = FlickrImagesRepository(application)
+    private val PER_PAGE = 7
+    private var searchText: String = "Random"
 
-    fun getFlickrImages(searchText: String, perPage: Int, page: Int) =
-        viewModelScope.launch(Dispatchers.IO) {
-            flickrImagesRepository.getFlickrImages(searchText, perPage, page)
-        }
+    fun getFlickrImages(searchText: String, page: Int) = viewModelScope.launch(Dispatchers.IO) {
+        this@FlickrImagesViewModel.searchText = searchText
+        flickrImagesRepository.getFlickrImages(searchText, PER_PAGE, page)
+    }
 
     fun getFlickrImagesLiveData(): LiveData<FlickrImagesResp> {
         return flickrImagesRepository.getFlickrImagesLiveData()
     }
 
+    fun getErrorLiveData(): LiveData<Boolean> {
+        return flickrImagesRepository.getErrorImagesLiveData()
+    }
+
+    fun getProgressLiveData(): LiveData<Boolean> {
+        return flickrImagesRepository.getProgressImagesLiveData()
+    }
+
+    fun loadMoreImages(page: Int) = viewModelScope.launch(Dispatchers.IO) {
+        flickrImagesRepository.getFlickrImages(
+            searchText,
+            PER_PAGE,
+            page
+        )
+    }
 }
