@@ -74,6 +74,11 @@ class FlickrImagesAdapter(private val onItemClick: (String) -> Unit) :
         return if (position == list.size) VIEW_PROG else VIEW_IMAGE
     }
 
+    fun clearData() {
+        list.clear()
+        notifyDataSetChanged()
+    }
+
     inner class FlickrImagesViewHolder(private val binding: ItemImageBinding) :
         BaseViewHolder(binding.root) {
         override fun onBind(position: Int, item: Any?) {
@@ -108,13 +113,13 @@ class FlickrImagesAdapter(private val onItemClick: (String) -> Unit) :
             binding.apply {
                 if (showLoading) {
                     progressBar.visibility = View.VISIBLE
-                    tvLoadMore.visibility = View.GONE
+                    tvLoadMore.visibility = View.INVISIBLE //make view invisible instead of visible so that height of parent remain same
                 } else if (showLoadMore) {
                     tvLoadMore.visibility = View.VISIBLE
-                    progressBar.visibility = View.GONE
+                    progressBar.visibility = View.INVISIBLE //make view invisible instead of visible so that height of parent remain same
                 } else {
-                    tvLoadMore.visibility = View.GONE
-                    progressBar.visibility = View.GONE
+                    tvLoadMore.visibility = View.INVISIBLE
+                    progressBar.visibility = View.INVISIBLE
                 }
 
                 tvLoadMore.setOnClickListener {

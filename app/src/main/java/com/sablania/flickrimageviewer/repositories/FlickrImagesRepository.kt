@@ -31,7 +31,7 @@ class FlickrImagesRepository(application: Application) : BaseRepository(applicat
         Log.i("vipul", "call start for $page")
         try {
             val call = flickrApiService.getFlickrImages(reqMap)
-            if (page < 5 && call.isSuccessful) {
+            if (call.isSuccessful) {
                 imagesLiveData.postValue(call.body())
                 errorLiveData.postValue(false)
             } else {

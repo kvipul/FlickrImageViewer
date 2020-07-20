@@ -9,6 +9,7 @@ import android.view.inputmethod.EditorInfo
 import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
@@ -58,23 +59,24 @@ class FlickrImagesFragment : BaseFragment() {
                 onListItemClicked(clickType)
             }
             rvImages.adapter = adapter
-
             val linearLayoutManager = LinearLayoutManager(context)
             rvImages.layoutManager = linearLayoutManager
+            rvImages.addItemDecoration(
+                DividerItemDecoration(
+                    context!!,
+                    DividerItemDecoration.VERTICAL
+                )
+            )
+
             endlessScrollListener =
                 object : EndlessRecyclerViewScrollListener(linearLayoutManager, VISIBLE_THRESHOLD) {
                     override fun onLoadMore(page: Int, totalItemsCount: Int, view: RecyclerView?) {
                         currentPage = page
-                        rvImages.post { adapter.setBottomProgress(showLoading = true) }
-                        viewModel.loadMoreImages(currentPage)
+                        if (currentPage != 1) loadMoreData() //for the first page, we'll call manually
                     }
                 }
             rvImages.addOnScrollListener(endlessScrollListener)
-//            rvImages.isNestedScrollingEnabled = false
 
-//            swipeRefreshLayout.setOnRefreshListener {
-//                refreshData()
-//            }
             layoutApiErrorAndRetry.tvRetry.setOnClickListener {
                 refreshData()
             }
@@ -93,8 +95,7 @@ class FlickrImagesFragment : BaseFragment() {
             viewModel =
                 getViewModelProvider(this@FlickrImagesFragment).get(FlickrImagesViewModel::class.java)
             viewModel.getFlickrImagesLiveData().observe(viewLifecycleOwner, Observer {
-                Log.i("vipul", "current page $currentPage"+ Gson().toJson(it))
-//                swipeRefreshLayout.isRefreshing = false
+                Log.i("vipul", "current page $currentPage" + Gson().toJson(it))
 
                 if (currentPage == 1) {
                     adapter.setData(it.photos.photo)
@@ -122,16 +123,16 @@ class FlickrImagesFragment : BaseFragment() {
 
     private fun refreshData() {
         binding.apply {
+            currentPage = 1
             tietSearch.hideKeyboard()
             endlessScrollListener.resetState()
             showListOrErrorLayout(false)
+            adapter.clearData()
             adapter.setBottomProgress(showLoading = true)
-//            swipeRefreshLayout.isRefreshing = true
             val searchText = tietSearch.text.toString()
             if (searchText.isEmpty()) {
                 Toast.makeText(context!!, R.string.please_enter_text_to_search, Toast.LENGTH_LONG)
                     .show()
-//                swipeRefreshLayout.isRefreshing = false
                 return
             }
             viewModel.getFlickrImages(searchText, currentPage)
@@ -145,11 +146,19 @@ class FlickrImagesFragment : BaseFragment() {
         }
     }
 
+    private fun loadMoreData() {
+        binding.apply {
+            rvImages.post { adapter.setBottomProgress(showLoading = true) }
+            viewModel.loadMoreImages(currentPage)
+        }
+    }
+
     private fun onListItemClicked(clickType: String) {
         when (clickType) {
             FlickrImagesAdapter.IMAGE_ITEM_CLICKED -> {
             }
             FlickrImagesAdapter.LOAD_MORE_CLICKED -> {
+                loadMoreData()
             }
         }
     }
