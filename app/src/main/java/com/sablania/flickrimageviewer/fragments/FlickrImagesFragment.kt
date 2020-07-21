@@ -92,14 +92,14 @@ class FlickrImagesFragment : BaseFragment() {
             viewModel =
                 getViewModelProvider(this@FlickrImagesFragment).get(FlickrImagesViewModel::class.java)
             viewModel.getInitialLoadImagesLiveData().observe(viewLifecycleOwner, Observer {
-                adapter.setData(it.photos.photo)
-                binding.apply {
-//                    rvImages.isVisible = true
+                it?.let {
+                    adapter.setData(it.photos.photo)
                 }
             })
             viewModel.getLoadMoreImagesLiveData().observe(viewLifecycleOwner, Observer {
-                adapter.addData(it.photos.photo)
-//                binding.rvImages.isVisible = true
+                it?.let {
+                    adapter.addData(it.photos.photo)
+                }
             })
             viewModel.getFullPageErrorLiveData().observe(viewLifecycleOwner, Observer {
                 binding.layoutApiErrorAndRetry.root.isVisible = it
@@ -114,7 +114,7 @@ class FlickrImagesFragment : BaseFragment() {
                 binding.tvNoDataFound.isVisible = it
             })
             //First load
-            viewModel.initialLoadImages("Random")
+            viewModel.restorePrevLoadIfAnyOrLoadRandom()
         }
     }
 

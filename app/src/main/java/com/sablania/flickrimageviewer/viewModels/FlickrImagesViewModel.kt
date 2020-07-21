@@ -12,7 +12,7 @@ import kotlinx.coroutines.launch
 
 class FlickrImagesViewModel(application: Application) : BaseViewModel(application) {
     private val flickrImagesRepository = FlickrImagesRepository(application)
-    private val PER_PAGE = 20
+    private val PER_PAGE = 25
     private var searchText: String = "Random"
     private var currentPage = 1
 
@@ -51,6 +51,11 @@ class FlickrImagesViewModel(application: Application) : BaseViewModel(applicatio
                 inlineErrorLiveData.postValue(true)
             }
         }
+    }
+
+    fun restorePrevLoadIfAnyOrLoadRandom() {
+        //since data in this viewmodel would survive configuration changes; simply make a loadMoreImage() call
+        loadMoreImages()
     }
 
     fun getInitialLoadImagesLiveData(): LiveData<FlickrImagesResp> = initialLoadImagesLiveData
