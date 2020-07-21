@@ -7,6 +7,7 @@ An Android App which provides search functionality for images using [Flickr APIs
   - MVVM Architecture with LiveData, ViewModel, etc
   - Pagination added using an Infinite Scroll Mechanism
   - Image data caching with Glide
+  - TestCases Covered
   
   
 ## Third Party Library
