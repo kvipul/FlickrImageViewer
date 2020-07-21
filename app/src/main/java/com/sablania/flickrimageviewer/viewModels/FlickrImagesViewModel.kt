@@ -2,6 +2,7 @@ package com.sablania.flickrimageviewer.viewModels
 
 import android.app.Application
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.sablania.baseandroidlibrary.BaseViewModel
 import com.sablania.flickrimageviewer.models.FlickrImagesResp
@@ -13,29 +14,54 @@ class FlickrImagesViewModel(application: Application) : BaseViewModel(applicatio
     private val flickrImagesRepository = FlickrImagesRepository(application)
     private val PER_PAGE = 20
     private var searchText: String = "Random"
+    private var currentPage = 1
 
-    fun getFlickrImages(searchText: String, page: Int) = viewModelScope.launch(Dispatchers.IO) {
+    private val initialLoadImagesLiveData by lazy { MutableLiveData<FlickrImagesResp>() }
+    private val loadMoreImagesLiveData by lazy { MutableLiveData<FlickrImagesResp>() }
+    private val fullPageErrorLiveData by lazy { MutableLiveData<Boolean>() }
+    private val inlineErrorLiveData by lazy { MutableLiveData<Boolean>() }
+    private val progressLiveData by lazy { MutableLiveData<Boolean>() }
+    private val noDataLiveData by lazy { MutableLiveData<Boolean>() }
+
+    fun initialLoadImages(searchText: String) = viewModelScope.launch(Dispatchers.IO) {
+        currentPage = 1
         this@FlickrImagesViewModel.searchText = searchText
-        flickrImagesRepository.getFlickrImages(searchText, PER_PAGE, page)
+        loadMoreImages()
     }
 
-    fun getFlickrImagesLiveData(): LiveData<FlickrImagesResp> {
-        return flickrImagesRepository.getFlickrImagesLiveData()
+    fun loadMoreImages() = viewModelScope.launch(Dispatchers.IO) {
+        progressLiveData.postValue(true)
+        noDataLiveData.postValue(false)
+        fullPageErrorLiveData.postValue(false)
+        val responsePair = flickrImagesRepository.getFlickrImages(searchText, PER_PAGE, currentPage)
+        if (responsePair.first) {
+            val responseBody = responsePair.second as FlickrImagesResp
+            if (currentPage == 1) {
+                noDataLiveData.postValue(responseBody.photos.photo.isEmpty())
+                initialLoadImagesLiveData.postValue(responseBody)
+            } else {
+                loadMoreImagesLiveData.postValue(responseBody)
+            }
+            currentPage++ //when call is successfull, increment page number
+            progressLiveData.postValue(false)
+        } else {
+            if (currentPage == 1) {
+                fullPageErrorLiveData.postValue(true)
+            } else {
+                inlineErrorLiveData.postValue(true)
+            }
+        }
     }
 
-    fun getErrorLiveData(): LiveData<Boolean> {
-        return flickrImagesRepository.getErrorImagesLiveData()
-    }
+    fun getInitialLoadImagesLiveData(): LiveData<FlickrImagesResp> = initialLoadImagesLiveData
 
-    fun getProgressLiveData(): LiveData<Boolean> {
-        return flickrImagesRepository.getProgressImagesLiveData()
-    }
+    fun getLoadMoreImagesLiveData(): LiveData<FlickrImagesResp> = loadMoreImagesLiveData
 
-    fun loadMoreImages(page: Int) = viewModelScope.launch(Dispatchers.IO) {
-        flickrImagesRepository.getFlickrImages(
-            searchText,
-            PER_PAGE,
-            page
-        )
-    }
+    fun getFullPageErrorLiveData(): LiveData<Boolean> = fullPageErrorLiveData
+
+    fun getInlineErrorLiveData(): LiveData<Boolean> = inlineErrorLiveData
+
+    fun getProgressLiveData(): LiveData<Boolean> = progressLiveData
+
+    fun getNoDataLiveData(): LiveData<Boolean> = noDataLiveData
 }

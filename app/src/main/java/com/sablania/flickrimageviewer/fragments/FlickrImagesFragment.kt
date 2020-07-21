@@ -1,7 +1,6 @@
 package com.sablania.flickrimageviewer.fragments
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,7 +11,6 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.gson.Gson
 import com.sablania.baseandroidlibrary.BaseFragment
 import com.sablania.baseandroidlibrary.EndlessRecyclerViewScrollListener
 import com.sablania.baseandroidlibrary.hideKeyboard
@@ -29,10 +27,8 @@ class FlickrImagesFragment : BaseFragment() {
     lateinit var binding: FragmentFlickrImagesBinding
     lateinit var viewModel: FlickrImagesViewModel
     lateinit var adapter: FlickrImagesAdapter
-    private var currentPage = 1
 
     companion object {
-
         val TAG = this::class.java.simpleName
         private const val VISIBLE_THRESHOLD = 5
 
@@ -73,8 +69,7 @@ class FlickrImagesFragment : BaseFragment() {
             endlessScrollListener =
                 object : EndlessRecyclerViewScrollListener(layoutManager, VISIBLE_THRESHOLD) {
                     override fun onLoadMore(page: Int, totalItemsCount: Int, view: RecyclerView?) {
-                        currentPage = page
-                        if (currentPage != 1) loadMoreData() //for the first page, we'll call manually
+                        if (page != 1) viewModel.loadMoreImages() //for the first page, we'll call manually
                     }
                 }
             rvImages.addOnScrollListener(endlessScrollListener)
@@ -96,30 +91,30 @@ class FlickrImagesFragment : BaseFragment() {
         binding.apply {
             viewModel =
                 getViewModelProvider(this@FlickrImagesFragment).get(FlickrImagesViewModel::class.java)
-            viewModel.getFlickrImagesLiveData().observe(viewLifecycleOwner, Observer {
-                Log.i("vipul", "current page $currentPage" + Gson().toJson(it))
-
-                if (currentPage == 1) {
-                    adapter.setData(it.photos.photo)
-                } else {
-                    adapter.addData(it.photos.photo)
+            viewModel.getInitialLoadImagesLiveData().observe(viewLifecycleOwner, Observer {
+                adapter.setData(it.photos.photo)
+                binding.apply {
+//                    rvImages.isVisible = true
                 }
             })
-            viewModel.getErrorLiveData().observe(viewLifecycleOwner, Observer {
-                Log.i("vipul", "current page $currentPage error $it")
-                if (it) {
-                    if (currentPage == 1) {
-                        showListOrErrorLayout(true)
-                        adapter.setBottomProgress(false, false)
-                    } else {
-                        showListOrErrorLayout(false)
-                        adapter.setBottomProgress(false, true)
-                    }
-                } else {
-                    showListOrErrorLayout(false)
-                    adapter.setBottomProgress(false, false)
-                }
+            viewModel.getLoadMoreImagesLiveData().observe(viewLifecycleOwner, Observer {
+                adapter.addData(it.photos.photo)
+//                binding.rvImages.isVisible = true
             })
+            viewModel.getFullPageErrorLiveData().observe(viewLifecycleOwner, Observer {
+                binding.layoutApiErrorAndRetry.root.isVisible = it
+            })
+            viewModel.getInlineErrorLiveData().observe(viewLifecycleOwner, Observer {
+                adapter.setBottomProgress(showLoading = false, showLoadMore = it)
+            })
+            viewModel.getProgressLiveData().observe(viewLifecycleOwner, Observer {
+                adapter.setBottomProgress(showLoading = it, showLoadMore = false)
+            })
+            viewModel.getNoDataLiveData().observe(viewLifecycleOwner, Observer {
+                binding.tvNoDataFound.isVisible = it
+            })
+            //First load
+            viewModel.initialLoadImages("Random")
         }
     }
 
@@ -131,28 +126,10 @@ class FlickrImagesFragment : BaseFragment() {
                     .show()
                 return
             }
-            currentPage = 1
             tietSearch.hideKeyboard()
             endlessScrollListener.resetState()
-            showListOrErrorLayout(false)
             adapter.clearData()
-            adapter.setBottomProgress(showLoading = true)
-
-            viewModel.getFlickrImages(searchText, currentPage)
-        }
-    }
-
-    private fun showListOrErrorLayout(showError: Boolean) {
-        binding.apply {
-            layoutApiErrorAndRetry.root.isVisible = showError
-            rvImages.isVisible = !showError
-        }
-    }
-
-    private fun loadMoreData() {
-        binding.apply {
-            rvImages.post { adapter.setBottomProgress(showLoading = true) }
-            viewModel.loadMoreImages(currentPage)
+            viewModel.initialLoadImages(searchText)
         }
     }
 
@@ -161,7 +138,7 @@ class FlickrImagesFragment : BaseFragment() {
             FlickrImagesAdapter.IMAGE_ITEM_CLICKED -> {
                 context?.openImageInGallery((item as FlickrImage).getImageLarge())
             }
-            FlickrImagesAdapter.LOAD_MORE_CLICKED -> loadMoreData()
+            FlickrImagesAdapter.LOAD_MORE_CLICKED -> viewModel.loadMoreImages()
         }
     }
 

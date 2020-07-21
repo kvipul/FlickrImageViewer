@@ -13,12 +13,10 @@ class FlickrImagesRepository(application: Application) : BaseRepository(applicat
     private val flickrApiService =
         getRetrofitClient("https://api.flickr.com").create(FlickrApiService::class.java)
 
-    private val imagesLiveData by lazy { MutableLiveData<FlickrImagesResp>() }
-
-    private val errorLiveData by lazy { MutableLiveData<Boolean>() }
-    private val progressLiveData by lazy { MutableLiveData<Boolean>() }
-
-    suspend fun getFlickrImages(searchText: String, perPage: Int, page: Int) {
+    /**
+     * returns Pair<IsSuccessful, Body>
+     */
+    suspend fun getFlickrImages(searchText: String, perPage: Int, page: Int): Pair<Boolean, Any?> {
         val reqMap = HashMap<String, Any>()
         reqMap["method"] = "flickr.photos.search" //don't change
         reqMap["api_key"] = "062a6c0c49e4de1d78497d13a7dbb360" //don't change
@@ -31,21 +29,11 @@ class FlickrImagesRepository(application: Application) : BaseRepository(applicat
         Log.i("vipul", "call start for $page")
         try {
             val call = flickrApiService.getFlickrImages(reqMap)
-            if (call.isSuccessful) {
-                imagesLiveData.postValue(call.body())
-                errorLiveData.postValue(false)
-            } else {
-                errorLiveData.postValue(true)
-            }
             Log.i("vipul", "call stop for $page")
+            return Pair(call.isSuccessful, call.body())
         } catch (e: Exception) {
-            errorLiveData.postValue(true)
+            //Type of error can be handled here such as NetworkError, ServerError
+            return Pair(false, null)
         }
     }
-
-    fun getFlickrImagesLiveData(): LiveData<FlickrImagesResp> = imagesLiveData
-
-    fun getErrorImagesLiveData(): LiveData<Boolean> = errorLiveData
-
-    fun getProgressImagesLiveData(): LiveData<Boolean> = progressLiveData
 }
