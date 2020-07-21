@@ -3,4 +3,6 @@
     <string name="search">Search</string>
     <string name="please_enter_text_to_search">Please enter text to search</string>
     <string name="load_more_data">Load more data</string>
+    <string name="search_images">Search Images</string>
+    <string name="no_data_found_nplease_try_searching_for_some_other_text">No Data Found! \nPlease try searching for some other text.</string>
 </resources>

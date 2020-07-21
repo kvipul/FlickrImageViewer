@@ -117,16 +117,16 @@ class FlickrImagesAdapter(private val onItemClick: (String, Any?) -> Unit) :
             binding.apply {
                 if (showLoading) {
                     progressBar.visibility = View.VISIBLE
-                    tvLoadMore.visibility = View.INVISIBLE //make view invisible instead of visible so that height of parent remain same
+                    ivRetry.visibility = View.INVISIBLE //make view invisible instead of visible so that height of parent remain same
                 } else if (showLoadMore) {
-                    tvLoadMore.visibility = View.VISIBLE
+                    ivRetry.visibility = View.VISIBLE
                     progressBar.visibility = View.INVISIBLE //make view invisible instead of visible so that height of parent remain same
                 } else {
-                    tvLoadMore.visibility = View.INVISIBLE
+                    ivRetry.visibility = View.INVISIBLE
                     progressBar.visibility = View.INVISIBLE
                 }
 
-                tvLoadMore.setOnClickListener {
+                ivRetry.setOnClickListener {
                     onItemClick.invoke(LOAD_MORE_CLICKED, null)
                 }
             }

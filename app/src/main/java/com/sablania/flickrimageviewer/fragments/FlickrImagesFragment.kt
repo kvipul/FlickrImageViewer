@@ -125,18 +125,19 @@ class FlickrImagesFragment : BaseFragment() {
 
     private fun refreshData() {
         binding.apply {
-            currentPage = 1
-            tietSearch.hideKeyboard()
-            endlessScrollListener.resetState()
-            showListOrErrorLayout(false)
-            adapter.clearData()
-            adapter.setBottomProgress(showLoading = true)
             val searchText = tietSearch.text.toString()
             if (searchText.isEmpty()) {
                 Toast.makeText(context!!, R.string.please_enter_text_to_search, Toast.LENGTH_LONG)
                     .show()
                 return
             }
+            currentPage = 1
+            tietSearch.hideKeyboard()
+            endlessScrollListener.resetState()
+            showListOrErrorLayout(false)
+            adapter.clearData()
+            adapter.setBottomProgress(showLoading = true)
+
             viewModel.getFlickrImages(searchText, currentPage)
         }
     }
