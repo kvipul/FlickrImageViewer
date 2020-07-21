@@ -2,16 +2,6 @@ package com.sablania.flickrimageviewer.models
 
 import com.google.gson.annotations.SerializedName
 
-data class FlickrImagesRequest(
-    @SerializedName("method") val method: String = "flickr.photos.search",
-    @SerializedName("api_key") val apiKey: String = "062a6c0c49e4de1d78497d13a7dbb360",
-    @SerializedName("text") val text: String,
-    @SerializedName("format") val format: String = "json",
-    @SerializedName("nojsoncallback") val noJsonCallback: Int = 1,
-    @SerializedName("per_page") val perPage: Int,
-    @SerializedName("page") val page: Int
-)
-
 data class FlickrImagesResp(
     @SerializedName("photos") val photos: FlickrImages,
     @SerializedName("stat") val status: String
